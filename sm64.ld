@@ -1119,6 +1119,18 @@ SECTIONS
    }
    END_SEG(assets)
 
+   BEGIN_SEG(custom, SEG_CUSTOM)
+   {
+      BUILD_DIR/src/custom*.o(.text);
+      BUILD_DIR/src/custom*.o(.data*);
+      BUILD_DIR/src/custom*.o(.rodata*);
+   }
+   END_SEG(custom)
+   BEGIN_NOLOAD(custom) {
+      BUILD_DIR/src/custom*.o(.bss*);
+   }
+   END_NOLOAD(custom)
+
    /* Discard everything not specifically mentioned above. */
    /DISCARD/ :
    {

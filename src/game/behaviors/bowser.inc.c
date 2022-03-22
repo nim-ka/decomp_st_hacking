@@ -1579,7 +1579,7 @@ s8 sBowserRainbowLight[] = { FALSE, FALSE, TRUE };
 /**
  * Set how much health Bowser has on each stage
  */
-s8 sBowserHealth[] = { 1, 1, 3 };
+s8 sBowserHealth[] = { 1, 1, 1 };
 
 /**
  * Update Bowser's actions when he's hands free

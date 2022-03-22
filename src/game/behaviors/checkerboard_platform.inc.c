@@ -19,7 +19,7 @@ void bhv_checkerboard_elevator_group_init(void) {
     struct Object *sp2C;
 
     if (o->oBehParams2ndByte == 0) {
-        o->oBehParams2ndByte = 65;
+        o->oBehParams2ndByte = 40;
     }
 
     sp3C = o->oBehParams2ndByte * 10;

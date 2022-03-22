@@ -243,7 +243,7 @@ u32 main_pool_pop_state(void) {
  * Perform a DMA read from ROM. The transfer is split into 4KB blocks, and this
  * function blocks until completion.
  */
-static void dma_read(u8 *dest, u8 *srcStart, u8 *srcEnd) {
+void dma_read(u8 *dest, u8 *srcStart, u8 *srcEnd) {
     u32 size = ALIGN16(srcEnd - srcStart);
 
     osInvalDCache(dest, size);
@@ -295,23 +295,33 @@ void *load_segment(s32 segment, u8 *srcStart, u8 *srcEnd, u32 side) {
  * If this block is not large enough to hold the ROM data, or that portion
  * of the pool is already allocated, return NULL.
  */
+
 void *load_to_fixed_pool_addr(u8 *destAddr, u8 *srcStart, u8 *srcEnd) {
-    void *dest = NULL;
+    void *dest = destAddr;
     u32 srcSize = ALIGN16(srcEnd - srcStart);
-    u32 destSize = ALIGN16((u8 *) sPoolListHeadR - destAddr);
+    u32 destSize = srcSize;
 
     if (srcSize <= destSize) {
-        dest = main_pool_alloc(destSize, MEMORY_POOL_RIGHT);
-        if (dest != NULL) {
             bzero(dest, destSize);
             osWritebackDCacheAll();
             dma_read(dest, srcStart, srcEnd);
             osInvalICache(dest, destSize);
             osInvalDCache(dest, destSize);
-        }
     } else {
     }
     return dest;
+*(volatile int*)0=0;
+*(volatile int*)0=0;
+*(volatile int*)0=0;
+*(volatile int*)0=0;
+*(volatile int*)0=0;
+*(volatile int*)0=0;
+*(volatile int*)0=0;
+*(volatile int*)0=0;
+*(volatile int*)0=0;
+*(volatile int*)0=0;
+*(volatile int*)0=0;
+*(volatile int*)0=0;
 }
 
 /**
@@ -369,6 +379,7 @@ void load_engine_code_segment(void) {
     osInvalICache(startAddr, totalSize);
     osInvalDCache(startAddr, totalSize);
 }
+
 #endif
 
 /**

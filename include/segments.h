@@ -38,6 +38,8 @@
 
 #define SEG_FRAMEBUFFERS 0x8038F800
 
+#define SEG_CUSTOM 0x80400000
+
 #else /* Use Expansion Pak space for pool. */
 
 /*

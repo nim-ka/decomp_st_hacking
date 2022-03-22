@@ -128,11 +128,16 @@ void setup_mesg_queues(void) {
 }
 
 void alloc_pool(void) {
-    void *start = (void *) SEG_POOL_START;
-    void *end = (void *) SEG_POOL_END;
+    void *start = (void *) 0x80500000;
+    void *end = (void *) 0x80800000;
+//    void *start = (void *) SEG_POOL_START;
+//    void *end = (void *) SEG_POOL_END;
 
     main_pool_init(start, end);
     gEffectsMemoryPool = mem_pool_init(0x4000, MEMORY_POOL_LEFT);
+    return;
+
+
 }
 
 void create_thread(OSThread *thread, OSId id, void (*entry)(void *), void *arg, void *sp, OSPri pri) {
