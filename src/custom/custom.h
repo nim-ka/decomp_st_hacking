@@ -1,15 +1,10 @@
 #ifndef CUSTOM_H
 #define CUSTOM_H
 
-extern void (*sPlatActions[])(void);
+#define CUSTOM_LOADED 69
 
-extern u8 gCustomEnd[];
+extern u32 gCustomLoaded;
 
 extern void custom_entry(void);
-
-extern s32 true(void);
-extern s32 false(void);
-
-extern struct Object *find_obj_with_behavior(const BehaviorScript *behavior);
 
 #endif

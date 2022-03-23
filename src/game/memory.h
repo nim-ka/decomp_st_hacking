@@ -55,6 +55,8 @@ u32 main_pool_available(void);
 u32 main_pool_push_state(void);
 u32 main_pool_pop_state(void);
 
+void dma_read(u8 *dest, u8 *srcStart, u8 *srcEnd);
+
 #ifndef NO_SEGMENTED_MEMORY
 void *load_segment(s32 segment, u8 *srcStart, u8 *srcEnd, u32 side);
 void *load_to_fixed_pool_addr(u8 *destAddr, u8 *srcStart, u8 *srcEnd);

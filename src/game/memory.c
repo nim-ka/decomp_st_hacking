@@ -307,21 +307,17 @@ void *load_to_fixed_pool_addr(u8 *destAddr, u8 *srcStart, u8 *srcEnd) {
             dma_read(dest, srcStart, srcEnd);
             osInvalICache(dest, destSize);
             osInvalDCache(dest, destSize);
-    } else {
     }
+
     return dest;
-*(volatile int*)0=0;
-*(volatile int*)0=0;
-*(volatile int*)0=0;
-*(volatile int*)0=0;
-*(volatile int*)0=0;
-*(volatile int*)0=0;
-*(volatile int*)0=0;
-*(volatile int*)0=0;
-*(volatile int*)0=0;
-*(volatile int*)0=0;
-*(volatile int*)0=0;
-*(volatile int*)0=0;
+
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
 }
 
 /**

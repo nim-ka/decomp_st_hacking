@@ -1,6 +1,13 @@
 // bowser_falling_platform.inc.c
 
-struct BowserFallingPlatformData sBowserFallingPlatform[11] = {
+struct BowserFallingPlatformData {
+    const Collision *collision;
+    s16 posX;
+    s16 posZ;
+    s16 angle;
+};
+
+struct BowserFallingPlatformData sBowserFallingPlatform[] = {
     { NULL, 0, 0, 0 },
     { bowser_3_seg7_collision_07004B94,  -800, -1000, -20992 },
     { bowser_3_seg7_collision_07004C18, -1158,   390, -18432 },

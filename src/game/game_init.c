@@ -17,6 +17,7 @@
 #include "sound_init.h"
 #include "print.h"
 #include "segment2.h"
+#include "segments.h"
 #include "segment_symbols.h"
 #include "rumble_init.h"
 
@@ -388,28 +389,6 @@ void display_and_vsync(void) {
 // ----------------------------------------------------------------------------------------------------
 
 /**
- * This function records distinct inputs over a 255-frame interval to RAM locations and was likely
- * used to record the demo sequences seen in the final game. This function is unused.
- */
-#include "segments.h"
-#include "segment_symbols.h"
-#define ALIGN16(val) (((val) + 0xF) & ~0xF)
-extern u8 _customSegmentNoloadStart[];
-extern u8 _customSegmentNoloadEnd[];
-void load_custom_code_segment(void) {
-    void *startAddr = (void *) SEG_CUSTOM;
-    u32 totalSize = ALIGN16(_customSegmentRomEnd - _customSegmentRomStart);
-
-    bzero(startAddr, totalSize);
-    osWritebackDCacheAll();
-    dma_read(startAddr, _customSegmentRomStart, _customSegmentRomEnd);
-    osInvalICache(startAddr, totalSize);
-    osInvalDCache(startAddr, totalSize);
-
-    bzero(_customSegmentNoloadStart, _customSegmentNoloadEnd - _customSegmentNoloadStart);
-}
-
-/**
  * Take the updated controller struct and calculate the new x, y, and distance floats.
  */
 void adjust_analog_stick(struct Controller *controller) {
@@ -449,73 +428,95 @@ void adjust_analog_stick(struct Controller *controller) {
     }
 }
 
+extern u8 _customSegmentNoloadStart[];
+extern u8 _customSegmentNoloadEnd[];
+
+#define ALIGN16(val) (((val) + 0xF) & ~0xF)
+
+void load_custom_code_segment(void) {
+    void *startAddr = (void *) SEG_CUSTOM;
+    u32 totalSize = ALIGN16(_customSegmentRomEnd - _customSegmentRomStart);
+
+    bzero(startAddr, totalSize);
+    osWritebackDCacheAll();
+    dma_read(startAddr, _customSegmentRomStart, _customSegmentRomEnd);
+    osInvalICache(startAddr, totalSize);
+    osInvalDCache(startAddr, totalSize);
+
+    bzero(_customSegmentNoloadStart, _customSegmentNoloadEnd - _customSegmentNoloadStart);
+}
+
+#undef ALIGN16
+
 /**
  * If a demo sequence exists, this will run the demo input list until it is complete.
  */
 void run_demo_inputs(void) {
-    if (* (u8 *) SEG_CUSTOM != 0x27) {
-load_custom_code_segment();
-	} else {
-custom_entry();
-}
-return;
+    if (gCustomLoaded != CUSTOM_LOADED) {
+        load_custom_code_segment();
+    } else {
+        custom_entry();
+    }
 
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
-while (TRUE);
+    return;
+
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
+    while (TRUE);
 }
 /**
  * Update the controller struct with available inputs if present.

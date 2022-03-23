@@ -41,6 +41,7 @@ DECLARE_SEGMENT(behavior)
 DECLARE_SEGMENT(scripts)
 DECLARE_SEGMENT(goddard)
 DECLARE_SEGMENT(custom)
+
 extern u8 _goddardSegmentStart[];
 
 DECLARE_LEVEL_SEGMENT(menu)
