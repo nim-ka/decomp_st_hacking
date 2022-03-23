@@ -15,8 +15,8 @@
 
 #ifndef USE_EXT_RAM /* Default: Runs out of memory quickly when importing custom assets. */
 
-#define SEG_POOL_START   0x80500000
-#define SEG_POOL_END     0x80800000
+#define SEG_POOL_START   0x8005C000
+#define SEG_POOL_END     SEG_BUFFERS
 
 #define SEG_GODDARD      0x8016F000
 

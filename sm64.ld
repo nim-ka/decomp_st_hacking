@@ -983,6 +983,8 @@ SECTIONS
    }
    END_NOLOAD(goddard)
 
+   ASSERT((. <= SEG_POOL_END), "Error: extended past pool end.")
+
    . = SEG_BUFFERS;
    BEGIN_NOLOAD(buffers)
    {
@@ -1128,8 +1130,6 @@ SECTIONS
       BUILD_DIR/src/custom*.o(.bss*);
    }
    END_NOLOAD(custom)
-
-   ASSERT((. <= SEG_POOL_START), "Error: extended into pool.")
 
    /* Discard everything not specifically mentioned above. */
    /DISCARD/ :

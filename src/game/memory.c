@@ -295,29 +295,23 @@ void *load_segment(s32 segment, u8 *srcStart, u8 *srcEnd, u32 side) {
  * If this block is not large enough to hold the ROM data, or that portion
  * of the pool is already allocated, return NULL.
  */
-
 void *load_to_fixed_pool_addr(u8 *destAddr, u8 *srcStart, u8 *srcEnd) {
-    void *dest = destAddr;
+    void *dest = NULL;
     u32 srcSize = ALIGN16(srcEnd - srcStart);
-    u32 destSize = srcSize;
+    u32 destSize = ALIGN16((u8 *) sPoolListHeadR - destAddr);
 
     if (srcSize <= destSize) {
+        dest = main_pool_alloc(destSize, MEMORY_POOL_RIGHT);
+        if (dest != NULL) {
             bzero(dest, destSize);
             osWritebackDCacheAll();
             dma_read(dest, srcStart, srcEnd);
             osInvalICache(dest, destSize);
             osInvalDCache(dest, destSize);
+        }
+    } else {
     }
-
     return dest;
-
-    while (TRUE);
-    while (TRUE);
-    while (TRUE);
-    while (TRUE);
-    while (TRUE);
-    while (TRUE);
-    while (TRUE);
 }
 
 /**
