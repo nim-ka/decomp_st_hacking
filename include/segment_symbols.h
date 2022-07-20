@@ -6,6 +6,10 @@
     extern u8 _##name##SegmentRomStart[]; \
     extern u8 _##name##SegmentRomEnd[];
 
+#define DECLARE_NOLOAD_SEGMENT(name) \
+    extern u8 _##name##SegmentNoloadStart[]; \
+    extern u8 _##name##SegmentNoloadEnd[];
+
 #define DECLARE_ACTOR_SEGMENT(name) \
     DECLARE_SEGMENT(name##_mio0) \
     DECLARE_SEGMENT(name##_geo)
@@ -41,6 +45,8 @@ DECLARE_SEGMENT(behavior)
 DECLARE_SEGMENT(scripts)
 DECLARE_SEGMENT(goddard)
 DECLARE_SEGMENT(custom)
+
+DECLARE_NOLOAD_SEGMENT(custom)
 
 extern u8 _goddardSegmentStart[];
 

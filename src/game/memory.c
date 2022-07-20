@@ -369,7 +369,6 @@ void load_engine_code_segment(void) {
     osInvalICache(startAddr, totalSize);
     osInvalDCache(startAddr, totalSize);
 }
-
 #endif
 
 /**

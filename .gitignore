@@ -48,6 +48,7 @@ build/*
 *.dump
 *.mio0
 *.z64
+*.st
 *.map
 .assets-local.txt
 

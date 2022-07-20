@@ -6,8 +6,8 @@ HOST_ENV := $(patsubst MINGW%,MinGW,$(HOST_ENV))
 CC           := gcc
 CXX          := g++
 CFLAGS       := -I . -Wall -Wextra -Wno-unused-parameter -pedantic -O2 -s
-LDFLAGS      := -lm
-ALL_PROGRAMS := armips n64graphics n64graphics_ci mio0 n64cksum textconv patch_elf_32bit aifc_decode aiff_extract_codebook vadpcm_enc tabledesign extract_data_for_mio skyconv
+LDFLAGS      := -lm -lz
+ALL_PROGRAMS := armips n64graphics n64graphics_ci mio0 n64cksum textconv patch_elf_32bit aifc_decode aiff_extract_codebook vadpcm_enc tabledesign extract_data_for_mio skyconv patch_st
 LIBAUDIOFILE := audiofile/libaudiofile.a
 
 # Only build armips from tools if it is not found on the system
@@ -37,6 +37,8 @@ patch_elf_32bit_SOURCES := patch_elf_32bit.c
 aifc_decode_SOURCES := aifc_decode.c
 
 aiff_extract_codebook_SOURCES := aiff_extract_codebook.c
+
+patch_st_SOURCES := patch_st.c
 
 tabledesign: $(LIBAUDIOFILE)
 tabledesign_SOURCES := sdk-tools/tabledesign/codebook.c sdk-tools/tabledesign/estimate.c sdk-tools/tabledesign/print.c sdk-tools/tabledesign/tabledesign.c

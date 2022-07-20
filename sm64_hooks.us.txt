@@ -1,0 +1,2 @@
+profiler_log_thread5_time custom_hook 0xb0
+draw_profiler_mode_1 load_custom_code_segment_hook 0x2e0

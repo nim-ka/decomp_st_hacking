@@ -17,7 +17,7 @@ DEFINES :=
 
 # Build for the N64 (turn this off for ports)
 TARGET_N64 ?= 1
-
+TARGET_ST ?= 1
 
 # COMPILER - selects the C compiler to use
 #   ido - uses the SGI IRIS Development Option compiler, which is used to build
@@ -58,7 +58,6 @@ else ifeq ($(VERSION),sh)
 endif
 
 TARGET := sm64.$(VERSION)
-
 
 # GRUCODE - selects which RSP microcode to use.
 #   f3d_old - default for JP and US versions
@@ -124,7 +123,7 @@ endif
 # COMPARE - whether to verify the SHA-1 hash of the ROM after building
 #   1 - verifies the SHA-1 hash of the selected version of the game
 #   0 - does not verify the hash
-COMPARE ?= 1
+COMPARE ?= 0
 $(eval $(call validate-option,COMPARE,0 1))
 
 TARGET_STRING := sm64.$(VERSION).$(GRUCODE)
@@ -203,6 +202,15 @@ endif
 BUILD_DIR_BASE := build
 # BUILD_DIR is the location where all build artifacts are placed
 BUILD_DIR      := $(BUILD_DIR_BASE)/$(VERSION)
+
+ifeq ($(TARGET_ST),1)
+  BASEROM      := baserom.$(VERSION).z64
+  BASEST       := basest.$(VERSION).st
+  ST           := $(BUILD_DIR)/$(TARGET).st
+  HOOKFILE     := sm64_hooks.$(VERSION).txt
+  MAP          := $(BUILD_DIR)/$(TARGET).map
+endif
+
 ROM            := $(BUILD_DIR)/$(TARGET).z64
 ELF            := $(BUILD_DIR)/$(TARGET).elf
 LIBULTRA       := $(BUILD_DIR)/libultra.a
@@ -377,7 +385,13 @@ ifneq (,$(call find-command,armips))
 else
   RSPASM              := $(TOOLS_DIR)/armips
 endif
+
+ifeq ($(TARGET_ST),1)
+  PATCH_ST            := $(TOOLS_DIR)/patch_st
+endif
+
 ENDIAN_BITWIDTH       := $(BUILD_DIR)/endian-and-bitwidth
+
 EMULATOR = mupen64plus
 EMU_FLAGS = --noosd
 LOADER = loader64
@@ -408,10 +422,18 @@ endef
 # Main Targets                                                                 #
 #==============================================================================#
 
+ifeq ($(TARGET_ST),1)
+
+all: $(ST)
+
+else
+
 all: $(ROM)
 ifeq ($(COMPARE),1)
 	@$(PRINT) "$(GREEN)Checking if ROM matches.. $(NO_COL)\n"
 	@$(SHA1SUM) --quiet -c $(TARGET).sha1 && $(PRINT) "$(TARGET): $(GREEN)OK$(NO_COL)\n" || ($(PRINT) "$(YELLOW)Building the ROM file has succeeded, but does not match the original ROM.\nThis is expected, and not an error, if you are making modifications.\nTo silence this message, use 'make COMPARE=0.' $(NO_COL)\n" && false)
+endif
+
 endif
 
 clean:
@@ -744,10 +766,16 @@ $(ROM): $(ELF)
 	$(V)$(OBJCOPY) --pad-to=0x800000 --gap-fill=0xFF $< $(@:.z64=.bin) -O binary
 	$(V)$(N64CKSUM) $(@:.z64=.bin) $@
 
+ifeq ($(TARGET_ST),1)
+
+# Inject ST
+$(ST): $(BASEROM) $(ROM) $(BASEST) $(HOOKFILE) $(MAP)
+	$(V)$(PATCH_ST) --baserom $(BASEROM) --rom $(ROM) --in $(BASEST) --out $@ --hooks $(HOOKFILE) --map $(MAP)
+
+endif
+
 $(BUILD_DIR)/$(TARGET).objdump: $(ELF)
 	$(OBJDUMP) -D $< > $@
-
-
 
 .PHONY: all clean distclean default diff test load libultra
 # with no prerequisites, .SECONDARY causes no intermediate target to be removed
