@@ -18,6 +18,7 @@
 #define MAX_HOOKS 1024
 
 struct HookInfo {
+	bool jump;
 	bool began;
 	char destName[256];
 	unsigned long int destAddr;
@@ -255,14 +256,18 @@ int main(int argc, char **argv) {
 			CLEANUP_AND_EXIT(1);
 		}
 		
-		unsigned long int size = strtoul(sizeBuf, NULL, 0);
+		hooks[hookCount].jump = strcmp(sizeBuf, "JUMP") == 0;
 		
-		if (size == 0 || size % 4 != 0) {
-			fprintf(stderr, "%s: invalid target size in hook file '%s'. The size must be a valid non-zero integer divisible by 4.\n", progName, sizeBuf);
-			CLEANUP_AND_EXIT(1);
+		if (!hooks[hookCount].jump) {
+			unsigned long int size = strtoul(sizeBuf, NULL, 0);
+			
+			if (size == 0 || size % 4 != 0) {
+				fprintf(stderr, "%s: invalid target size in hook file '%s'. The size must be a valid non-zero integer divisible by 4.\n", progName, sizeBuf);
+				CLEANUP_AND_EXIT(1);
+			}
+			
+			hooks[hookCount].destSize = size;
 		}
-		
-		hooks[hookCount].destSize = size;
 		
 		hookCount++;
 	} while (true);
@@ -358,7 +363,11 @@ int main(int argc, char **argv) {
 		printf("Loaded hooks:\n");
 		
 		for (int i = 0; i < hookCount; i++) {
-			printf("\t%s (0x%08lx) <-- %s (0x%08lx), max 0x%lx bytes\n", hooks[i].destName, hooks[i].destAddr, hooks[i].srcName, hooks[i].srcAddr, hooks[i].destSize);
+			if (hooks[i].jump) {
+				printf("\t%s (0x%08lx) JUMP TO %s (0x%08lx)\n", hooks[i].destName, hooks[i].destAddr, hooks[i].srcName, hooks[i].srcAddr);
+			} else {
+				printf("\t%s (0x%08lx) <-- %s (0x%08lx), max 0x%lx bytes\n", hooks[i].destName, hooks[i].destAddr, hooks[i].srcName, hooks[i].srcAddr, hooks[i].destSize);
+			}
 		}
 	}
 	
@@ -398,24 +407,49 @@ int main(int argc, char **argv) {
 		unsigned int curPos = gztell(outFile);
 		
 		for (int i = 0; i < hookCount; i++) {
-			// TODO: Make this not copy the entire dest size?
-			unsigned long int destStart = hooks[i].destAddr;
-			unsigned long int destEnd = hooks[i].destAddr + hooks[i].destSize;
 			unsigned long int srcStart = hooks[i].srcAddr;
+			unsigned long int destStart = hooks[i].destAddr;
 			
-			if (destStart <= RDRAM_ST(curPos) && RDRAM_ST(curPos) < destEnd) {
-				fseek(romFile, ROM_RDRAM(srcStart) + curPos - destStart, SEEK_SET);
-				
-				if (fread(buf, 1, 4, romFile) != 4) {
-					fprintf(stderr, "%s: error reading from ROM file %s", progName, romPath);
-					CLEANUP_AND_EXIT(1);
+			if (hooks[i].jump) {
+				if (RDRAM_ST(curPos) == destStart) {
+					unsigned long int target = srcStart >> 2;
+					buf[3] = 0x08 | ((target >> 24) & 0x03);
+					buf[2] = (target >> 16) & 0xFF;
+					buf[1] = (target >> 8) & 0xFF;
+					buf[0] = target & 0xFF;
+				} else if (RDRAM_ST(curPos) == destStart + 4) {
+					buf[3] = 0x00;
+					buf[2] = 0x00;
+					buf[1] = 0x00;
+					buf[0] = 0x00;
+				} else {
+					continue;
 				}
+			} else {
+				// TODO: Make this not copy the entire dest size?
+				unsigned long int destEnd = hooks[i].destAddr + hooks[i].destSize;
 				
-				reverse_endianness(buf);
+				if (destStart <= RDRAM_ST(curPos) && RDRAM_ST(curPos) < destEnd) {
+					fseek(romFile, ROM_RDRAM(srcStart) + curPos - destStart, SEEK_SET);
+					
+					if (fread(buf, 1, 4, romFile) != 4) {
+						fprintf(stderr, "%s: error reading from ROM file %s", progName, romPath);
+						CLEANUP_AND_EXIT(1);
+					}
+					
+					reverse_endianness(buf);
+				} else {
+					continue;
+				}
+			}
+			
+			if (!hooks[i].began) {
+				hooks[i].began = true;
 				
-				if (!hooks[i].began) {
+				if (hooks[i].jump) {
+					printf("Began injecting hook #%d (jump to 0x%08lx) to 0x%08lx\n", i + 1, hooks[i].srcAddr, hooks[i].destAddr);
+				} else {
 					printf("Began injecting hook #%d from 0x%08lx to 0x%08lx\n", i + 1, hooks[i].srcAddr, hooks[i].destAddr);
-					hooks[i].began = true;
 				}
 			}
 		}
